@@ -13,8 +13,8 @@ unless defined? SOLR_CONFIG_PATH
   SOLR_CONFIG_PATH = ENV["SOLR_CONFIG_PATH"] || File.join(RAILS_ROOT, 'config', 'solr')
 end
 
-unless defined? RAKER_LOGS_PATH
-  RAKER_LOGS_PATH = File.join(RAILS_ROOT, 'log')
+unless defined? RAKER_LOG_FILE
+  RAKER_LOG_FILE = File.join(RAILS_ROOT, 'log', 'recommenderd.log')
 end
 unless defined? RAKER_PIDS_PATH
   RAKER_PIDS_PATH = ENV["RAKER_PIDS_PATH"] || "#{RAILS_ROOT}/tmp/pids/raker"

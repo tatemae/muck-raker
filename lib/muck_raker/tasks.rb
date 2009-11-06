@@ -104,7 +104,7 @@ module MuckRaker
               options << "-Dsolr.solr.home=\"#{SOLR_CONFIG_PATH}\" "
               options << "-Dsolr.data.dir=\"#{SOLR_DATA_PATH}\" "
               options << "-Draker.database.config=\"#{RAKER_DATABASE_CONFIG}\" " 
-              options << "-Draker.log.dir=\"#{RAKER_LOGS_PATH}\" "
+              options << "-Draker.log.file=\"#{RAKER_LOG_FILE}\" "
               options << "-Draker.feed_archive_dir=\"#{RAKER_FEED_ARCHIVE_PATH}\" "
               options << "-Draker.log_to_console=\"#{RAKER_LOG_TO_CONSOLE}\" "
               classpath = "-classpath #{jars}#{separator}. "

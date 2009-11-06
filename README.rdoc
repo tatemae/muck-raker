@@ -1,0 +1,13 @@
+= Muck Raker
+Muck Raker contains the jar files and rake tasks for running deamons to aggregates and recommend data. See muck-services for details.
+
+== Installation
+
+Install muck raker:
+  sudo gem install muck-raker
+  
+Add rake tasks to your Rakefile
+
+  require 'muck_raker/tasks'
+
+Copyright (c) 2009 Tatemae.com, released under the MIT license

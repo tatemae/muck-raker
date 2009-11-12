@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = %q{muck-raker}
-  s.version = "0.3.2"
+  s.version = "0.3.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joel Duffin Justin Ball"]
   s.date = %q{2009-11-05}
   s.description = %q{The aggregation and recommendation daemons for the muck system.}
-  s.email = %q{justinball@gmail.com}
+  s.email = %q{justin@tatemae.com}
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
@@ -96,6 +96,7 @@ Gem::Specification.new do |s|
      "db/migrate/20091006183742_add_feed_count_to_aggregation.rb",
      "db/migrate/20091022150615_add_uri_key_to_services.rb",
      "install.rb",
+     "lib/muck_raker.rb",
      "lib/muck_raker/tasks.rb",
      "muck-raker.gemspec",
      "rails/init.rb",

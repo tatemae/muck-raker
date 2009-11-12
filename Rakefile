@@ -26,7 +26,7 @@ begin
   Jeweler::Tasks.new do |gemspec|
     gemspec.name = "muck-raker"
     gemspec.summary = "The aggregation and recommendation daemons for the muck system"
-    gemspec.email = "justinball@gmail.com"
+    gemspec.email = "justin@tatemae.com"
     gemspec.homepage = "http://github.com/tatemae/muck-raker"
     gemspec.description = "The aggregation and recommendation daemons for the muck system."
     gemspec.authors = ["Joel Duffin Justin Ball"]

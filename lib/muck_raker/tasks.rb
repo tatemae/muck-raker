@@ -174,13 +174,13 @@ module MuckRaker
           end
 
           desc "Auto-generate tags for new entries that don't have at least 4. Add redo=true to regenerate for all entries."
-          task :auto_gen_subjects => :environment do
+          task :subjects => :environment do
             daemon_task 'subjects'
           end
 
           desc "Re-generate tag clouds."
-          task :gen_clouds => :environment do
-            daemon_task 'clouds', 'redo'
+          task :tag_clouds => :environment do
+            daemon_task 'tag_clouds', 'redo'
           end
 
           desc "Stop a raker daemon process."

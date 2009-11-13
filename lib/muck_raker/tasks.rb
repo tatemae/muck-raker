@@ -5,12 +5,14 @@ require 'fileutils'
 module MuckRaker
   class Tasks < ::Rake::TaskLib
     def initialize
+      ENV['DEBUG'] = 'true' unless ENV['DEBUG'] == 'false'
+      ENV['RAILS_ENV'] = 'development' unless ENV['RAILS_ENV']
       define
     end
-  
+
     private
     def define
-      
+
       namespace :muck do
 
         namespace :raker do
@@ -38,7 +40,7 @@ module MuckRaker
                 end
               }
             end
-            
+
             desc "Loads some feeds oai endpoints to get things started"
             task :bootstrap => :environment do
               require 'active_record/fixtures'
@@ -56,14 +58,14 @@ module MuckRaker
               ServiceCategory.delete_all
               yml = File.join(File.dirname(__FILE__), '..', '..', 'db', 'bootstrap',"service_categories")
               Fixtures.new(Service.connection,"service_categories",ServiceCategory,yml).insert_fixtures
-              
+
               Service.delete_all
               yml = File.join(File.dirname(__FILE__), '..', '..', 'db', 'bootstrap',"services")
               Fixtures.new(Service.connection,"services",Service,yml).insert_fixtures
 
             end
 
-            desc "Deletes and reloads all services and service categories"
+            desc "Deletes and reloads services and service categories"
             task :bootstrap_services => :environment do
               require 'active_record/fixtures'
               ActiveRecord::Base.establish_connection(RAILS_ENV.to_sym)
@@ -71,14 +73,15 @@ module MuckRaker
               ServiceCategory.delete_all
               yml = File.join(File.dirname(__FILE__), '..', '..', 'db', 'bootstrap',"service_categories")
               Fixtures.new(Service.connection,"service_categories",ServiceCategory,yml).insert_fixtures
-              
+
               Service.delete_all
               yml = File.join(File.dirname(__FILE__), '..', '..', 'db', 'bootstrap',"services")
               Fixtures.new(Service.connection,"services",Service,yml).insert_fixtures
+
             end
-            
+
           end
- 
+
           desc "Sync files from muck raker."
           task :sync do
             path = File.join(File.dirname(__FILE__), *%w[.. ..])
@@ -87,122 +90,115 @@ module MuckRaker
             system "rsync -ruv #{path}/config/solr ./config"
           end
 
-          def pid_file
-            "#{RAKER_PIDS_PATH}/#{ENV['RAILS_ENV']}_pid"
+
+          def show_options
+            puts "RAILS_ENV=#{ENV['RAILS_ENV']} "
+            puts "solr.solr.home=\"#{SOLR_CONFIG_PATH}\" "
+            puts "solr.data.dir=\"#{SOLR_DATA_PATH}\""
+            puts "RAKER_PIDS_PATH=\"#{RAKER_PIDS_PATH}\" "
+            puts "recommender.database.config_file=\"#{RAKER_DATABASE_CONFIG_FILE}\" "
+            puts "recommender.log_file=\"#{RAKER_LOGS_PATH}/raker.log\" "
+            puts "recommender.log_to_console=\"#{ENV['DEBUG']}\" "
+            puts "aggregator.feed_archive_path=\"#{RAKER_FEED_ARCHIVE_PATH}\" "
           end
 
-          def raker_task task = 'daemon', param = ''
+          def daemon_task task = 'all', task_param = nil
             require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
-            show_options
+            task_param ||= (ENV['redo'] == 'true') ? 'redo' : ''
             FileUtils.mkdir_p(RAKER_PIDS_PATH)
             FileUtils.mkdir_p(RAKER_LOGS_PATH)
+            FileUtils.mkdir_p(RAKER_FEED_ARCHIVE_PATH)
+            show_options
+            options = "-DRAILS_ENV=#{ENV['RAILS_ENV']} "
+            options << "-DDEBUG=#{ENV['DEBUG']} "
+            options << "-Dsolr.solr.home=\"#{SOLR_CONFIG_PATH}\" "
+            options << "-Dsolr.data.dir=\"#{SOLR_DATA_PATH}\" "
+            options << "-Drecommender.database.config_file=\"#{RAKER_DATABASE_CONFIG_FILE}\" "
+            options << "-Drecommender.log_file=\"#{RAKER_LOGS_PATH}/raker.log\" "
+            options << "-Drecommender.log_to_console=\"#{ENV['DEBUG']}\" "
+            options << "-Daggregator.feed_archive_path=\"#{RAKER_FEED_ARCHIVE_PATH}\" "
+            javaclass = "edu.usu.cosl.recommenderd.Recommenderd "
             separator = (RUBY_PLATFORM =~ /(win|w)32$/ ? ';' : ':')
-            puts "RAILS_ENV=" + ENV['RAILS_ENV']
             Dir.chdir(File.join(File.dirname(__FILE__), '../../', 'raker', 'lib')) do
               jars = Dir['*.jar','solr/*.jar'].join(separator)
-              options = "-DRAILS_ENV=#{ENV['RAILS_ENV']} "
-              options << "-Dsolr.solr.home=\"#{SOLR_CONFIG_PATH}\" "
-              options << "-Dsolr.data.dir=\"#{SOLR_DATA_PATH}\" "
-              options << "-Draker.database.config=\"#{RAKER_DATABASE_CONFIG}\" " 
-              options << "-Draker.log.file=\"#{RAKER_LOG_FILE}\" "
-              options << "-Draker.feed_archive_dir=\"#{RAKER_FEED_ARCHIVE_PATH}\" "
-              options << "-Draker.log_to_console=\"#{RAKER_LOG_TO_CONSOLE}\" "
               classpath = "-classpath #{jars}#{separator}. "
-              memory_options = "-Xms32m -Xmx128m "
-              javaclass = "edu.usu.cosl.recommenderd.Recommenderd "
-              cmd = "java " + options + classpath + memory_options + javaclass + task + " " + param
+              cmd = "java " + options + classpath + javaclass + task + ' ' + task_param
               puts ("Executing: " + cmd)
               windows = RUBY_PLATFORM =~ /(win|w)32$/
               if windows
-                exec cmd
+               exec cmd
               else
                 pid = fork do
                   exec cmd
                 end
               end
               sleep(5)
-              File.open(pid_file, "w"){ |f| f << pid} unless windows
-              puts "#{ENV['RAILS_ENV']} Muck raker harvest command started successfully, pid: #{pid}."
+              File.open("#{RAKER_PIDS_PATH}/#{ENV['RAILS_ENV']}_pid", "w"){ |f| f << pid} unless windows
+              puts "#{ENV['RAILS_ENV']} Muck raker command started successfully, pid: #{pid}."
             end
           end
-          
-          def show_options
-            puts "RAILS_ENV=#{ENV['RAILS_ENV']} "
-            puts "solr.solr.home=\"#{SOLR_CONFIG_PATH}\" "
-            puts "solr.data.dir=\"#{SOLR_DATA_PATH}\" "
-            puts "raker.db.config=\"#{RAKER_DATABASE_CONFIG}\" " 
-            puts "raker.log.dir=\"#{RAKER_LOGS_PATH}\" "
-            puts "raker.feed_archive_dir=\"#{RAKER_FEED_ARCHIVE_PATH}\" "
-            puts "raker.log_to_console=\"#{RAKER_LOG_TO_CONSOLE}\" "
-          end
-          
-          desc "Print out muck raker dependent environment variables"
-          task :show_options => :environment do
-            require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
-            show_options
-          end
 
-          desc "Start the recommender daemon process"
+          desc "Start daemon."
           task :start => :environment do
-            raker_task
+            daemon_task 'all'
           end
 
-          desc "Redo everything (re-index, redo autogenerated subjects, rebuild tag clouds re-recommend)"
+          desc "Redo everything once and quit."
           task :rebuild => :environment do
-            raker_task 'daemon', 'full'
+            daemon_task 'all', 'redo'
           end
 
-          desc "Get some data into the recommender system"
-          task :bootstrap => :environment do
-            raker_task 'bootstrap'
-          end
-
-          desc "Harvest without recommending"
+          desc "Harvest stale feeds. Add redo=true to harvest all feeds."
           task :harvest => :environment do
-            raker_task 'harvest'
+            daemon_task 'harvest'
           end
 
-          desc "Update solr index to changes made to recommender database"
+          desc "Index new entries."
           task :index => :environment do
-            raker_task 'index'
+            daemon_task 'index'
           end
 
-          desc "Recommend without harvesting"
+          desc "Re-index all entries."
+          task :reindex => :environment do
+            daemon_task 'index', 'redo'
+          end
+
+          desc "Update recommendations."
           task :recommend => :environment do
-            raker_task 'recommend'
+            daemon_task 'recommend'
           end
 
-          desc "Redo recommendations only"
+          desc "Redo all recommendations."
           task :redo_recommendations => :environment do
-            raker_task 'recommend', 'full'
+            daemon_task 'recommend', 'redo'
           end
 
-          desc "Autogenerate subjects"
+          desc "Auto-generate tags for new entries that don't have at least 4. Add redo=true to regenerate for all entries."
           task :subjects => :environment do
-            raker_task 'auto_generate_subjects'
+            daemon_task 'subjects'
           end
 
-          desc "Generate tag clouds"
+          desc "Re-generate tag clouds."
           task :tag_clouds => :environment do
-            raker_task 'tag_clouds'
+            daemon_task 'tag_clouds', 'redo'
           end
 
-          desc "Stop a raker daemon process"
+          desc "Stop a raker daemon process."
           task :stop => :environment do
-            file_path = pid_file 
+            file_path = "#{RAKER_PIDS_PATH}/#{ENV['RAILS_ENV']}_pid"
             if File.exists?(file_path)
               File.open(file_path, "r") do |f|
                 pid = f.readline
                 Process.kill('TERM', pid.to_i)
               end
               File.unlink(file_path)
-              puts "Raker task successfully."
+              puts "Raker shutdown successfully."
             else
               puts "PID file not found at #{file_path}. Either Raker is not running or no PID file was written."
             end
           end
 
-        end  
+        end
 
       end
 

@@ -6,6 +6,7 @@ module MuckRaker
   class Tasks < ::Rake::TaskLib
     def initialize
       ENV['DEBUG'] = 'true' unless ENV['DEBUG'] == 'false'
+      ENV['RAILS_ENV'] = 'development' unless ENV['RAILS_ENV']
       define
     end
 
@@ -103,7 +104,7 @@ module MuckRaker
 
           def daemon_task task = 'all', task_param = nil
             require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
-            task_param ||= (ENV['redo'] == 'true') ? ' redo' : ''
+            task_param ||= (ENV['redo'] == 'true') ? 'redo' : ''
             FileUtils.mkdir_p(RAKER_PIDS_PATH)
             FileUtils.mkdir_p(RAKER_LOGS_PATH)
             FileUtils.mkdir_p(RAKER_FEED_ARCHIVE_PATH)
@@ -121,7 +122,7 @@ module MuckRaker
             Dir.chdir(File.join(File.dirname(__FILE__), '../../', 'raker', 'lib')) do
               jars = Dir['*.jar','solr/*.jar'].join(separator)
               classpath = "-classpath #{jars}#{separator}. "
-              cmd = "java " + options + classpath + javaclass + task + task_param
+              cmd = "java " + options + classpath + javaclass + task + ' ' + task_param
               puts ("Executing: " + cmd)
               windows = RUBY_PLATFORM =~ /(win|w)32$/
               if windows

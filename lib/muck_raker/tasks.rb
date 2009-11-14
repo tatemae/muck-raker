@@ -90,6 +90,17 @@ module MuckRaker
             system "rsync -ruv #{path}/config/solr ./config"
           end
 
+          def reload_cores
+            ['en', 'es', 'zh-CN', 'fr', 'ja', 'de', 'ru', 'nl'].each{|core|
+              Net::HTTP.new('127.0.0.1', SOLR_PORT).request_head('/solr/admin/cores?action=RELOAD&core=' + core).value
+            }
+          end
+
+          desc "Reload solr indexes used by muck-raker."
+          task :reload_indexes do
+            require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
+            reload_cores            
+          end
 
           def show_options
             puts "RAILS_ENV=#{ENV['RAILS_ENV']} "
@@ -144,7 +155,7 @@ module MuckRaker
           end
 
           desc "Redo everything once and quit."
-          task :rebuild => :environment do
+          task :start_redo => :environment do
             daemon_task 'all', 'redo'
           end
 
@@ -159,7 +170,7 @@ module MuckRaker
           end
 
           desc "Re-index all entries."
-          task :reindex => :environment do
+          task :index_redo => :environment do
             daemon_task 'index', 'redo'
           end
 
@@ -169,7 +180,7 @@ module MuckRaker
           end
 
           desc "Redo all recommendations."
-          task :redo_recommendations => :environment do
+          task :recommend_redo => :environment do
             daemon_task 'recommend', 'redo'
           end
 

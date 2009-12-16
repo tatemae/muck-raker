@@ -133,7 +133,7 @@ module MuckRaker
             Dir.chdir(File.join(File.dirname(__FILE__), '../../', 'raker', 'lib')) do
               jars = Dir['*.jar','solr/*.jar'].join(separator)
               classpath = "-classpath #{jars}#{separator}. "
-              cmd = "java " + options + classpath + javaclass + task + ' ' + task_param
+              cmd = "nice -n 2 java " + options + classpath + javaclass + task + ' ' + task_param
               puts ("Executing: " + cmd)
               windows = RUBY_PLATFORM =~ /(win|w)32$/
               if windows

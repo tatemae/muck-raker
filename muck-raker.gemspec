@@ -115,7 +115,7 @@ Gem::Specification.new do |s|
      "raker/lib/jericho.jar",
      "raker/lib/log4j-1.2.8.jar",
      "raker/lib/mail.jar",
-     "raker/lib/mysql-connector-java-5.1.7-bin.jar",
+     "raker/lib/mysql-connector-java-5.1.10-bin.jar",
      "raker/lib/recommenderd.jar",
      "raker/lib/recommenderd.properties",
      "raker/lib/rome-1.0.jar",

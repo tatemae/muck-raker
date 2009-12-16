@@ -151,12 +151,12 @@ module MuckRaker
 
           desc "Start daemon."
           task :start => :environment do
-            daemon_task 'all'
+            daemon_task 'daemon'
           end
 
           desc "Redo everything once and quit."
           task :start_redo => :environment do
-            daemon_task 'all', 'redo'
+            daemon_task 'daemon', 'redo'
           end
 
           desc "Harvest stale feeds. Add redo=true to harvest all feeds."

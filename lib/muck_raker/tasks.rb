@@ -29,8 +29,9 @@ module MuckRaker
           task :sync do
             path = File.join(File.dirname(__FILE__), *%w[.. ..])
             system "rsync -ruv #{path}/db ."
-            system "rsync -ruv #{path}/public ."
             system "rsync -ruv #{path}/config/solr ./config"
+            system "rsync -ruv #{path}/config/solr.yml ./config" if !File.exist?('.config/solr.yml')
+            system "rsync -ruv #{path}/config/initializers/muck_raker.rb ./config/initializers" if !File.exist?('.config/initializsers/muck_raker.rb')
           end
 
           def reload_cores

@@ -17,7 +17,7 @@ module MuckRaker
 
         namespace :raker do
 
-          desc "Imports attention data for use in testing"
+          desc "Import attention data for use in testing."
           task :import_attention => :environment do
             require 'active_record/fixtures'
             ActiveRecord::Base.establish_connection(RAILS_ENV.to_sym)
@@ -32,6 +32,7 @@ module MuckRaker
             system "rsync -ruv #{path}/config/solr ./config"
             system "rsync -ruv #{path}/config/solr.yml ./config" if !File.exist?('.config/solr.yml')
             system "rsync -ruv #{path}/config/initializers/muck_raker.rb ./config/initializers" if !File.exist?('.config/initializsers/muck_raker.rb')
+            puts "Copied muck-raker migrations, solr config files and initializer"
           end
 
           def reload_cores
@@ -40,10 +41,11 @@ module MuckRaker
             }
           end
 
-          desc "Reload solr indexes used by muck-raker."
+          desc "Reload solr indexes."
           task :reload_indexes do
             require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
             reload_cores            
+            puts "Reloaded solr indexes"
           end
 
           def show_options
@@ -93,17 +95,17 @@ module MuckRaker
             end
           end
 
-          desc "Start daemon."
+          desc "Start muck-raker daemon running continously."
           task :start => :environment do
             daemon_task 'daemon'
           end
 
-          desc "Redo everything once and quit."
+          desc "Redo everything and quit."
           task :start_redo => :environment do
             daemon_task 'daemon', 'redo'
           end
 
-          desc "Harvest stale feeds. Add redo=true to harvest all feeds."
+          desc "Harvest stale feeds."
           task :harvest => :environment do
             daemon_task 'harvest'
           end
@@ -118,7 +120,7 @@ module MuckRaker
             daemon_task 'index', 'redo'
           end
 
-          desc "Update recommendations."
+          desc "Incrementally update recommendations (create recommendations for newly harvested records)."
           task :recommend => :environment do
             daemon_task 'recommend'
           end
@@ -128,7 +130,7 @@ module MuckRaker
             daemon_task 'recommend', 'redo'
           end
 
-          desc "Auto-generate tags for new entries that don't have at least 4. Add redo=true to regenerate for all entries."
+          desc "Auto-generate tags for new entries that don't have at least 4."
           task :subjects => :environment do
             daemon_task 'subjects'
           end

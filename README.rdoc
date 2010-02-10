@@ -10,9 +10,14 @@ Add rake tasks to your Rakefile
 
   require 'muck_raker/tasks'
 
-== Rake Tasks
+== Usage
 
+Muck raker aggregates data feeds and analyzes the results to make recommendations. 
+
+=== Bring in required files - migrations etc:
   muck:raker:sync - Copy muck-raker migrations, solr config files and initializer file into your application.
+
+=== Running the Muck Raker Daemon
 
   muck:raker:start - Start muck-raker daemon running continuously. This task forks and then checks for stale feeds every
   60 seconds. When a stale feed is detected, it harvests the feed. If resources are added, updated, or deleted, it
@@ -20,6 +25,8 @@ Add rake tasks to your Rakefile
   the daemon updates recommendations for all resources and generates new tag clouds.
 
   muck:raker:stop - Stop the muck raker daemon process.
+
+=== Running Individual Steps
 
   muck:raker:start_redo - Redo everything and quit. This task harvests, updates recommendations for all resources,
   generates tags if needed, and generates new tag clouds. It does not fork. It stops after the one pass through.

@@ -15,10 +15,9 @@ module MuckRaker
 
       namespace :muck do
 
-        namespace :raker do
-
+        namespace :sync do
           desc "Sync files from muck raker."
-          task :sync do
+          task :raker do
             path = File.join(File.dirname(__FILE__), *%w[.. ..])
             system "rsync -ruv #{path}/db ."
             system "rsync -ruv #{path}/config/solr ./config"
@@ -26,6 +25,9 @@ module MuckRaker
             system "rsync -ruv #{path}/config/initializers/muck_raker.rb ./config/initializers" if !File.exist?('.config/initializsers/muck_raker.rb')
             puts "Copied muck-raker migrations, solr config files and initializer"
           end
+        end
+        
+        namespace :raker do
 
           desc "Start muck-raker daemon running continuously."
           task :start => :environment do

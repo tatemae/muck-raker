@@ -10,4 +10,42 @@ Add rake tasks to your Rakefile
 
   require 'muck_raker/tasks'
 
+== Usage
+
+Muck raker aggregates data feeds and analyzes the results to make recommendations. 
+
+=== Bring in required files - migrations etc:
+  muck:raker:sync - Copy muck-raker migrations, solr config files and initializer file into your application.
+
+=== Running the Muck Raker Daemon
+
+  muck:raker:start - Start muck-raker daemon running continuously. This task forks and then checks for stale feeds every
+  60 seconds. When a stale feed is detected, it harvests the feed. If resources are added, updated, or deleted, it
+  indexes the new resources, generates recommendations for the new resources, and generates tags if needed. Once a week
+  the daemon updates recommendations for all resources and generates new tag clouds.
+
+  muck:raker:stop - Stop the muck raker daemon process.
+
+=== Running Individual Steps
+
+  muck:raker:start_redo - Redo everything and quit. This task harvests, updates recommendations for all resources,
+  generates tags if needed, and generates new tag clouds. It does not fork. It stops after the one pass through.
+
+  muck:raker:harvest - Harvest stale feeds. Each feed has a "harvest_interval" that specifies how often the daemon
+  should harvest it to see if it has changed.. After that time period has elapsed the feed is considered stale. By
+  default that time period is 1 day.
+
+  muck:raker:index - Index new resources, delete resources that were deleted from the database, and update the index
+  for resources that were updated in the database.
+
+  muck:raker:index_redo - Updates the indexes for all resources.
+
+  muck:raker:recommend - Incrementally update recommendations (create recommendations for newly harvested records).
+
+  muck:raker:recommend_redo - Redo recommendations for all resources.
+
+  muck:raker:subjects - Auto-generate tags for newly harvested resources that don't have at least 4.
+
+  muck:raker:tag_clouds - Regenerate tag clouds.
+
 Copyright (c) 2009 Tatemae.com, released under the MIT license

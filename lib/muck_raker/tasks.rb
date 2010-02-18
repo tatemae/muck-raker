@@ -17,14 +17,6 @@ module MuckRaker
 
         namespace :raker do
 
-          desc "Imports attention data for use in testing"
-          task :import_attention => :environment do
-            require 'active_record/fixtures'
-            ActiveRecord::Base.establish_connection(RAILS_ENV.to_sym)
-            yml = File.join(RAILS_ROOT, 'db', 'bootstrap', 'attention')
-            Fixtures.new(Attention.connection,"attention",Attention,yml).insert_fixtures
-          end
-
           desc "Sync files from muck raker."
           task :sync do
             path = File.join(File.dirname(__FILE__), *%w[.. ..])
@@ -32,18 +24,67 @@ module MuckRaker
             system "rsync -ruv #{path}/config/solr ./config"
             system "rsync -ruv #{path}/config/solr.yml ./config" if !File.exist?('.config/solr.yml')
             system "rsync -ruv #{path}/config/initializers/muck_raker.rb ./config/initializers" if !File.exist?('.config/initializsers/muck_raker.rb')
+            puts "Copied muck-raker migrations, solr config files and initializer"
           end
 
-          def reload_cores
-            ['en', 'es', 'zh-CN', 'fr', 'ja', 'de', 'ru', 'nl'].each{|core|
-              Net::HTTP.new('127.0.0.1', SOLR_PORT).request_head('/solr/admin/cores?action=RELOAD&core=' + core).value
-            }
+          desc "Start muck-raker daemon running continuously."
+          task :start => :environment do
+            daemon_task 'daemon'
           end
 
-          desc "Reload solr indexes used by muck-raker."
-          task :reload_indexes do
-            require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
-            reload_cores            
+          desc "Stop a raker daemon process."
+          task :stop => :environment do
+            file_path = "#{RAKER_PIDS_PATH}/#{ENV['RAILS_ENV']}_pid"
+            if File.exists?(file_path)
+              File.open(file_path, "r") do |f|
+                pid = f.readline
+                Process.kill('TERM', pid.to_i)
+              end
+              File.unlink(file_path)
+              puts "Raker shutdown successfully."
+            else
+              puts "PID file not found at #{file_path}. Either Raker is not running or no PID file was written."
+            end
+          end
+
+          desc "Redo everything and quit."
+          task :start_redo => :environment do
+            daemon_task 'daemon', 'redo'
+          end
+
+          desc "Harvest stale feeds."
+          task :harvest => :environment do
+            daemon_task 'harvest'
+          end
+
+          desc "Index new entries."
+          task :index => :environment do
+            daemon_task 'index'
+          end
+
+          desc "Re-index all entries."
+          task :index_redo => :environment do
+            daemon_task 'index', 'redo'
+          end
+
+          desc "Incrementally update recommendations (create recommendations for newly harvested records)."
+          task :recommend => :environment do
+            daemon_task 'recommend'
+          end
+
+          desc "Redo all recommendations."
+          task :recommend_redo => :environment do
+            daemon_task 'recommend', 'redo'
+          end
+
+          desc "Auto-generate tags for new entries that don't have at least 4."
+          task :subjects => :environment do
+            daemon_task 'subjects'
+          end
+
+          desc "Re-generate tag clouds."
+          task :tag_clouds => :environment do
+            daemon_task 'tag_clouds', 'redo'
           end
 
           def show_options
@@ -93,64 +134,25 @@ module MuckRaker
             end
           end
 
-          desc "Start daemon."
-          task :start => :environment do
-            daemon_task 'daemon'
+          desc "Reload solr indexes."
+          task :reload_indexes do
+            require File.expand_path("#{File.dirname(__FILE__)}/../../config/muck_raker_environment")
+            reload_cores
+            puts "Reloaded solr indexes"
           end
 
-          desc "Redo everything once and quit."
-          task :start_redo => :environment do
-            daemon_task 'daemon', 'redo'
+          def reload_cores
+            ['en', 'es', 'zh-CN', 'fr', 'ja', 'de', 'ru', 'nl'].each{|core|
+              Net::HTTP.new('127.0.0.1', SOLR_PORT).request_head('/solr/admin/cores?action=RELOAD&core=' + core).value
+            }
           end
 
-          desc "Harvest stale feeds. Add redo=true to harvest all feeds."
-          task :harvest => :environment do
-            daemon_task 'harvest'
-          end
-
-          desc "Index new entries."
-          task :index => :environment do
-            daemon_task 'index'
-          end
-
-          desc "Re-index all entries."
-          task :index_redo => :environment do
-            daemon_task 'index', 'redo'
-          end
-
-          desc "Update recommendations."
-          task :recommend => :environment do
-            daemon_task 'recommend'
-          end
-
-          desc "Redo all recommendations."
-          task :recommend_redo => :environment do
-            daemon_task 'recommend', 'redo'
-          end
-
-          desc "Auto-generate tags for new entries that don't have at least 4. Add redo=true to regenerate for all entries."
-          task :subjects => :environment do
-            daemon_task 'subjects'
-          end
-
-          desc "Re-generate tag clouds."
-          task :tag_clouds => :environment do
-            daemon_task 'tag_clouds', 'redo'
-          end
-
-          desc "Stop a raker daemon process."
-          task :stop => :environment do
-            file_path = "#{RAKER_PIDS_PATH}/#{ENV['RAILS_ENV']}_pid"
-            if File.exists?(file_path)
-              File.open(file_path, "r") do |f|
-                pid = f.readline
-                Process.kill('TERM', pid.to_i)
-              end
-              File.unlink(file_path)
-              puts "Raker shutdown successfully."
-            else
-              puts "PID file not found at #{file_path}. Either Raker is not running or no PID file was written."
-            end
+          desc "Import attention data for use in testing."
+          task :import_attention => :environment do
+            require 'active_record/fixtures'
+            ActiveRecord::Base.establish_connection(RAILS_ENV.to_sym)
+            yml = File.join(RAILS_ROOT, 'db', 'bootstrap', 'attention')
+            Fixtures.new(Attention.connection,"attention",Attention,yml).insert_fixtures
           end
 
         end

@@ -1,8 +1,6 @@
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
-require 'muck_raker/tasks'
-
 
 desc 'Test muck-raker.'
 Rake::TestTask.new(:test) do |t|

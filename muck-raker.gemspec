@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{muck-raker}
-  s.version = "0.3.13"
+  s.version = "0.3.18"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joel Duffin Justin Ball"]
@@ -100,6 +100,7 @@ Gem::Specification.new do |s|
      "lib/muck-raker.rb",
      "lib/muck-raker/engine.rb",
      "lib/muck-raker/tasks/muck-raker.rake",
+     "muck-raker.gemspec",
      "raker/lib/aggregatord.jar",
      "raker/lib/aggregatord.properties",
      "raker/lib/axis.jar",

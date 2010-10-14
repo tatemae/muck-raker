@@ -7,8 +7,8 @@ require 'muck_raker/tasks'
 desc 'Test muck-raker.'
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
-  t.libs << 'test/rails_root/test'
-  t.pattern = 'test/rails_root/test/**/*_test.rb'
+  t.libs << 'test/rails_test/test'
+  t.pattern = 'test/rails_test/test/**/*_test.rb'
   t.verbose = true
 end
 

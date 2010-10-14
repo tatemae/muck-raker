@@ -48,4 +48,4 @@ Muck raker aggregates data feeds and analyzes the results to make recommendation
 
   muck:raker:tag_clouds - Regenerate tag clouds.
 
-Copyright (c) 2009 Tatemae.com, released under the MIT license
+Copyright (c) 2009-2010 Tatemae.com, released under the MIT license

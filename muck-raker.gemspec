@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{muck-raker}
-  s.version = "0.3.18"
+  s.version = "3.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joel Duffin Justin Ball"]
@@ -98,6 +98,7 @@ Gem::Specification.new do |s|
      "db/migrate/20091006183742_add_feed_count_to_aggregation.rb",
      "db/migrate/20091022150615_add_uri_key_to_services.rb",
      "lib/muck-raker.rb",
+     "lib/muck-raker/config.rb",
      "lib/muck-raker/engine.rb",
      "lib/tasks/muck_raker.rake",
      "muck-raker.gemspec",
@@ -174,7 +175,7 @@ Gem::Specification.new do |s|
      "test/rails_test/config/initializers/backtrace_silencers.rb",
      "test/rails_test/config/initializers/inflections.rb",
      "test/rails_test/config/initializers/mime_types.rb",
-     "test/rails_test/config/initializers/muck.rb",
+     "test/rails_test/config/initializers/muck_raker.rb",
      "test/rails_test/config/initializers/secret_token.rb",
      "test/rails_test/config/initializers/session_store.rb",
      "test/rails_test/config/routes.rb",

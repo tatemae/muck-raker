@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joel Duffin Justin Ball"]
-  s.date = %q{2010-10-14}
+  s.date = %q{2010-10-15}
   s.description = %q{The aggregation and recommendation daemons for the muck system.}
   s.email = %q{justin@tatemae.com}
   s.extra_rdoc_files = [
@@ -99,7 +99,7 @@ Gem::Specification.new do |s|
      "db/migrate/20091022150615_add_uri_key_to_services.rb",
      "lib/muck-raker.rb",
      "lib/muck-raker/engine.rb",
-     "lib/muck-raker/tasks/muck-raker.rake",
+     "lib/tasks/muck_raker.rake",
      "muck-raker.gemspec",
      "raker/lib/aggregatord.jar",
      "raker/lib/aggregatord.properties",

@@ -1,6 +1,6 @@
 development:
   adapter: mysql
-  database: folksemantic
+  database: muck_raker_development
   username: root
   password:
   host: localhost

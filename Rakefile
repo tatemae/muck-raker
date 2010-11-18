@@ -5,8 +5,8 @@ require 'rake/rdoctask'
 desc 'Test muck-raker.'
 Rake::TestTask.new(:test) do |t|
   t.libs << 'lib'
-  t.libs << 'test/rails_test/test'
-  t.pattern = 'test/rails_test/test/**/*_test.rb'
+  t.libs << 'test/test'
+  t.pattern = 'test/test/**/*_spec.rb'
   t.verbose = true
 end
 
@@ -21,17 +21,18 @@ end
 
 begin
   require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name = "muck-raker"
-    gemspec.summary = "The aggregation and recommendation daemons for the muck system"
-    gemspec.email = "justin@tatemae.com"
-    gemspec.homepage = "http://github.com/tatemae/muck-raker"
-    gemspec.description = "The aggregation and recommendation daemons for the muck system."
-    gemspec.authors = ["Joel Duffin Justin Ball"]
-    gemspec.rubyforge_project = 'muck-raker'
-    gemspec.files.exclude "public/images/service_icons/source/*"
-    gemspec.files.exclude "test/*"
-    gemspec.test_files.exclude 'test/feed_archive/**'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "muck-raker"
+    gem.summary = "The aggregation and recommendation daemons for the muck system"
+    gem.email = "justin@tatemae.com"
+    gem.homepage = "http://github.com/tatemae/muck-raker"
+    gem.description = "The aggregation and recommendation daemons for the muck system."
+    gem.authors = ["Joel Duffin Justin Ball"]
+    
+    gem.files.exclude "public/images/service_icons/source/*"
+    gem.files.exclude 'test/**'
+    gem.test_files.exclude 'test/feed_archive/**'
+    gem.test_files.exclude 'test/**'
   end
   Jeweler::RubyforgeTasks.new do |rubyforge|
     rubyforge.doc_task = "rdoc"
